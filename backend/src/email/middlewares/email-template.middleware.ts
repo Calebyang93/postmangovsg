@@ -6,6 +6,7 @@ import {
   RecipientColumnMissing,
   TemplateError,
   InvalidRecipientError,
+  UnexpectedDoubleQuoteError,
 } from '@core/errors'
 import {
   CampaignService,
@@ -135,7 +136,9 @@ const uploadCompleteHandler = async (req: Request, res: Response, next: NextFunc
       throw err
     }
   } catch (err) {
-    if (err instanceof RecipientColumnMissing || err instanceof MissingTemplateKeysError || err instanceof InvalidRecipientError){
+    const userErrors = [RecipientColumnMissing, MissingTemplateKeysError, InvalidRecipientError, UnexpectedDoubleQuoteError]
+
+    if (userErrors.some((errType) => err instanceof errType)) {
       return res.status(400).json({ message: err.message })
     }
     return next(err)
